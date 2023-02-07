@@ -1,5 +1,10 @@
-import { IsEmail, IsString, IsNotEmpty } from 'class-validator';
-import { IsOptional, Length } from 'class-validator/types/decorator/decorators';
+import {
+  IsEmail,
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  Length,
+} from 'class-validator';
 
 export class CreateUserDto {
   @IsString()

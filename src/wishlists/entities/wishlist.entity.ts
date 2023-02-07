@@ -32,7 +32,6 @@ export class Wishlist {
   @Column()
   image: string;
 
-  @Column()
   @OneToMany(() => Wish, (wish) => wish.id)
   items: Wish[];
 }

@@ -38,10 +38,11 @@ export class Wish {
   @IsPositive()
   price: number;
 
-  @Column()
+  @Column({
+    default: 0,
+  })
   raised: number;
 
-  @Column()
   @ManyToOne(() => User, (user) => user.wishes)
   owner: User;
 
@@ -49,11 +50,12 @@ export class Wish {
   @Length(1, 1024)
   description: string;
 
-  @Column()
   @OneToMany(() => Offer, (offer) => offer.item)
   offers: Offer[];
 
-  @Column()
+  @Column({
+    default: 0,
+  })
   @IsInt()
   @IsPositive()
   copied: number;

@@ -55,15 +55,12 @@ export class User {
   @Column()
   password: string;
 
-  @Column()
   @OneToMany(() => Wish, (wish) => wish.owner)
   wishes: Wish[];
 
-  @Column()
   @OneToMany(() => Offer, (offer) => offer.user)
   offers: Offer[];
 
-  @Column()
   @OneToMany(() => Wishlist, (wishlist) => wishlist.id)
   wishlists: Wishlist[];
 }
