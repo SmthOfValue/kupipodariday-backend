@@ -1,34 +1,86 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
+import { HashService } from 'src/hash/hash.service';
+import { ANOTHER_USER_WITH_THIS_DATA } from 'src/auth/constants/constants';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    private hashService: HashService,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    return this.userRepository.save(createUserDto);
+    const hashedPassword = await this.hashService.getHash(
+      createUserDto.password,
+    );
+    const { username, email, avatar, about } = createUserDto;
+    const userData = {
+      password: hashedPassword,
+      username,
+      email,
+      avatar,
+      about,
+    };
+    return await this.userRepository.save(userData);
   }
 
   async findAll() {
-    return this.userRepository.find();
+    return await this.userRepository.find();
   }
 
   async findOne(id: number) {
-    return this.userRepository.findOneBy({ id });
+    return await this.userRepository.findOneBy({ id });
+  }
+
+  async findOneByUsername(username: string) {
+    const user = await this.userRepository.findOneBy({ username });
+
+    return user;
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
-    return this.userRepository.update({ id }, updateUserDto);
+    const user = await this.userRepository.findOneBy({ id });
+
+    if (updateUserDto.email && updateUserDto.email !== user.email) {
+      const anotherUser = await this.userRepository.findOneBy({
+        email: updateUserDto.email,
+      });
+      if (anotherUser) {
+        throw new BadRequestException(ANOTHER_USER_WITH_THIS_DATA);
+      }
+    }
+    if (updateUserDto.password) {
+      updateUserDto.password = await this.hashService.getHash(
+        updateUserDto.password,
+      );
+    }
+
+    if (updateUserDto.username && updateUserDto.username !== user.username) {
+      const anotherUser = await this.findOneByUsername(updateUserDto.username);
+      if (anotherUser) {
+        throw new BadRequestException(ANOTHER_USER_WITH_THIS_DATA);
+      }
+    }
+
+    return await this.userRepository.save({ ...user, ...updateUserDto });
+  }
+
+  async findMany(query: string) {
+    console.log(query);
+    const searchResult = await this.userRepository.find({
+      where: [{ username: Like(`%${query}%`) }, { email: Like(`%${query}%`) }],
+    });
+
+    return searchResult;
   }
 
   async remove(id: number) {
-    return this.userRepository.delete({ id });
+    return await this.userRepository.delete({ id });
   }
 }

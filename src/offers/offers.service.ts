@@ -4,31 +4,35 @@ import { UpdateOfferDto } from './dto/update-offer.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Offer } from './entities/offer.entity';
 import { Repository } from 'typeorm';
+import { WishesService } from 'src/wishes/wishes.service';
 
 @Injectable()
 export class OffersService {
   constructor(
     @InjectRepository(Offer)
     private offerRepository: Repository<Offer>,
+    private wishesService: WishesService,
   ) {}
 
-  create(createOfferDto: CreateOfferDto) {
-    //    return this.offerRepository.save(createOfferDto);
+  async create(createOfferDto: CreateOfferDto) {
+    const item = await this.wishesService.findOne(createOfferDto.item);
+    return this.offerRepository.save({ ...createOfferDto, item });
   }
 
-  findAll() {
+  async findAll() {
     return this.offerRepository.find();
   }
 
-  findOne(id: number) {
+  async findOne(id: number) {
     return this.offerRepository.findOneBy({ id });
   }
 
-  update(id: number, updateOfferDto: UpdateOfferDto) {
-    //   return this.offerRepository.update({ id }, updateOfferDto);
+  async update(id: number, updateOfferDto: UpdateOfferDto) {
+    const item = await this.wishesService.findOne(updateOfferDto.item);
+    return this.offerRepository.save({ ...updateOfferDto, item, id });
   }
 
-  remove(id: number) {
+  async remove(id: number) {
     return this.offerRepository.delete({ id });
   }
 }
