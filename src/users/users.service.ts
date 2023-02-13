@@ -19,10 +19,19 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
+    const { username, email, avatar, about } = createUserDto;
+
+    const existingUserByEmail = this.userRepository.findOneBy({ email });
+    const existinguserByName = this.userRepository.findOneBy({ username });
+
+    if (existingUserByEmail || existinguserByName) {
+      throw new BadRequestException(ANOTHER_USER_WITH_THIS_DATA);
+    }
+
     const hashedPassword = await this.hashService.getHash(
       createUserDto.password,
     );
-    const { username, email, avatar, about } = createUserDto;
+
     const userData = {
       password: hashedPassword,
       username,
