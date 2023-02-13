@@ -14,6 +14,7 @@ export const EDITING_WISH_PRICE_WITH_OFFERS_IS_FORBIDDEN =
   'Нельзя изменять цену подарка, на который уже есть желающие скинуться';
 export const WISH_ALREADY_FUNDED =
   'На подарок набралось достаточно желающих скинуться';
+export const WISH_ALREADY_COPIED = 'Вы уже копировали себе этот подарок';
 
 export const WISHLIST_NOT_FOUND = 'Вишлиста с такими данными не существует';
 
@@ -22,3 +23,5 @@ export const OFFER_NOT_FOUND =
   'Предложения скинуться с такими данными не существует';
 export const RAISED_MORE_THAN_PRICE =
   'Сумма собранных средств не может превышать стоимость подарка';
+
+export const INTERNAL_SERVER_ERROR = 'Что-то пошло не так, попробуйте еще раз';

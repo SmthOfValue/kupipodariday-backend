@@ -12,6 +12,7 @@ import { User } from 'src/users/entities/user.entity';
 import {
   EDITING_WISH_PRICE_WITH_OFFERS_IS_FORBIDDEN,
   INCORRECT_OWNER,
+  WISH_ALREADY_COPIED,
   WISH_NOT_FOUND,
 } from 'src/utils/constants';
 
@@ -124,6 +125,20 @@ export class WishesService {
 
     if (!wish) {
       throw new NotFoundException(WISH_NOT_FOUND);
+    }
+
+    const previouslyCopiedWish = await this.wishRepository.findOne({
+      relations: {
+        owner: true,
+      },
+      where: {
+        link: wish.link,
+        owner: { id: user.id },
+      },
+    });
+
+    if (previouslyCopiedWish) {
+      throw new BadRequestException(WISH_ALREADY_COPIED);
     }
 
     wish.copied = wish.copied + 1;
