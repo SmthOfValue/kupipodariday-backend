@@ -7,7 +7,15 @@ import {
   OneToMany,
   ManyToOne,
 } from 'typeorm';
-import { IsInt, Length, IsDefined, IsUrl, IsPositive } from 'class-validator';
+import {
+  IsInt,
+  Length,
+  IsDefined,
+  IsUrl,
+  IsPositive,
+  IsNumber,
+  IsString,
+} from 'class-validator';
 import { User } from './../../users/entities/user.entity';
 import { Offer } from './../../offers/entities/offer.entity';
 
@@ -36,17 +44,20 @@ export class Wish {
 
   @Column()
   @IsPositive()
+  @IsNumber()
   price: number;
 
   @Column({
     default: 0,
   })
+  @IsNumber()
   raised: number;
 
   @ManyToOne(() => User, (user) => user.wishes)
   owner: User;
 
   @Column()
+  @IsString()
   @Length(1, 1024)
   description: string;
 

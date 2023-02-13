@@ -5,7 +5,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Like, Repository } from 'typeorm';
 import { HashService } from 'src/hash/hash.service';
-import { ANOTHER_USER_WITH_THIS_DATA } from 'src/auth/constants/constants';
+import { ANOTHER_USER_WITH_THIS_DATA } from 'src/utils/constants';
+import { Wish } from 'src/wishes/entities/wish.entity';
 
 @Injectable()
 export class UsersService {
@@ -13,6 +14,8 @@ export class UsersService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
     private hashService: HashService,
+    @InjectRepository(Wish)
+    private readonly wishRepository: Repository<Wish>,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -80,7 +83,18 @@ export class UsersService {
     return searchResult;
   }
 
-  async remove(id: number) {
-    return await this.userRepository.delete({ id });
+  async findUserWishes(id: number) {
+    return await this.wishRepository.find({
+      where: { owner: { id } },
+      relations: [
+        'offers',
+        'offers.user',
+        'offers.item',
+        'offers.item.owner',
+        'offers.user.wishes',
+        'offers.user.offers',
+        'offers.user.wishlists',
+      ],
+    });
   }
 }

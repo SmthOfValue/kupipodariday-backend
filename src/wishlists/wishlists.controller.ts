@@ -1,34 +1,61 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Req,
+  UseInterceptors,
+} from '@nestjs/common';
 import { WishlistsService } from './wishlists.service';
 import { CreateWishlistDto } from './dto/create-wishlist.dto';
 import { UpdateWishlistDto } from './dto/update-wishlist.dto';
+import { JwtGuard } from 'src/auth/guards/jwtAuth.guard';
+import { User } from 'src/users/entities/user.entity';
+import { RemoveUserInfoFromWishlistInterceptor } from './interceptors/removeUserInfoFromWishlist.interceptor';
 
+@UseGuards(JwtGuard)
 @Controller('wishlists')
 export class WishlistsController {
   constructor(private readonly wishlistsService: WishlistsService) {}
 
   @Post()
-  create(@Body() createWishlistDto: CreateWishlistDto) {
-    return this.wishlistsService.create(createWishlistDto);
+  @UseInterceptors(RemoveUserInfoFromWishlistInterceptor)
+  async create(
+    @Body() createWishlistDto: CreateWishlistDto,
+    @Req() { user }: { user: User },
+  ) {
+    return await this.wishlistsService.create(createWishlistDto, user);
   }
 
   @Get()
-  findAll() {
-    return this.wishlistsService.findAll();
+  @UseInterceptors(RemoveUserInfoFromWishlistInterceptor)
+  async findAll() {
+    return await this.wishlistsService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.wishlistsService.findOne(+id);
+  @UseInterceptors(RemoveUserInfoFromWishlistInterceptor)
+  async findOne(@Param('id') id: string) {
+    return await this.wishlistsService.findOne(+id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateWishlistDto: UpdateWishlistDto) {
-    return this.wishlistsService.update(+id, updateWishlistDto);
+  @UseInterceptors(RemoveUserInfoFromWishlistInterceptor)
+  async update(
+    @Param('id') id: string,
+    @Body() updateWishlistDto: UpdateWishlistDto,
+    @Req() { user }: { user: User },
+  ) {
+    return await this.wishlistsService.update(+id, updateWishlistDto, user);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.wishlistsService.remove(+id);
+  @UseInterceptors(RemoveUserInfoFromWishlistInterceptor)
+  async remove(@Param('id') id: string, @Req() { user }: { user: User }) {
+    return await this.wishlistsService.remove(+id, user);
   }
 }

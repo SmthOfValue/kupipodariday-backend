@@ -14,7 +14,6 @@ export class CreateWishDto {
   @IsNotEmpty()
   name: string;
 
-  @IsNotEmpty()
   @IsString()
   @IsNotEmpty()
   link: string;
